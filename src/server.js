@@ -21,9 +21,13 @@ const server = http.createServer(async (req, res) => {
 
   console.log(url);
 
-  const route = routes.find((value) => value.method === method && value.path === url);
+  const route = routes.find((value) => value.method === method && value.path.test(url));
 
   if (!route) return res.writeHead(404).end("Not Found");
+
+  const routeParams = req.url.match(route.path);
+
+  req.params = { ...routeParams.groups };
 
   route.handler(req, res);
 });

@@ -1,13 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { json } from "./middleware/json.js";
 import { Database } from "./database.js";
+import { buildRoutePath } from "./utils/build-rote-path.js";
 
 const database = new Database();
 
 export const routes = [
   {
     method: "GET",
-    path: "/users",
+    path: buildRoutePath("/users"),
     handler: (req, res) => {
       const users = database.select("users");
 
@@ -16,7 +17,7 @@ export const routes = [
   },
   {
     method: "POST",
-    path: "/users",
+    path: buildRoutePath("/users"),
     handler: async (req, res) => {
       await json(res, req);
 
@@ -35,17 +36,12 @@ export const routes = [
   },
   {
     method: "DELETE",
-    path: "/users/:id",
+    path: buildRoutePath("/users/:id"),
     handler: async (req, res) => {
-      await json(res, req);
+      const { id } = req.params;
 
-      const { name, email } = req.body;
-
-      console.log(email);
-
-      const user = database.select("users").find((value) => value.email === email);
-      if (!user) res.writeHead(404).end("Usuário não encontrado");
-      console.log(user);
+      database.delete("users", id);
+      res.writeHead(200).end("Usuário deletado");
     }
   }
 ];
